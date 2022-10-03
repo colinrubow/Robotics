@@ -15,7 +15,7 @@ class SO3():
     __legal_euler_angles --- list(string) --- the possible euler angles allowed
     """
 
-    def __init__(self, orientation=np.eye(3)) -> None:
+    def __init__(self, orientation=np.eye(3)) -> "SO3":
         """Initialize the orientation
         
         Parameters:
@@ -24,10 +24,15 @@ class SO3():
         """
         self.orientation = orientation
     
+    def __matmul__(self, other) -> "SO3, np.ndarray()(float)":
+        """Overrides multiplication for SO3 objects"""
+        if type(other) == SO3:
+            return SO3(self.orientation @ other.orientation)
+        return self.orientation @ other
+    
     def rot_elementary(self, rotations, current=True, update=True) -> "np.ndarray(float)":
         """Rotates the frame about the current axis if current=True else fixed given a list of rotations. Does not
-            rotate the frame if update=False. If from_identity=True then returns the rotation from the identity rotation
-            rather than the frame. Performs elementary rotations.
+            rotate the frame if update=False.
         
         Parameters:
         ---
@@ -123,41 +128,6 @@ class SO3():
         the quaternion values of the form (neta, epsilon)
         """
         return quaternion(self.orientation)
-
-class Quaternion():
-    """A class for representing the orientation of a frame in quaternion form
-    
-    Members:
-    ---
-    neta --- float --- the scaler part
-    epsilon --- np.ndarray(float, float, float) --- the vector part
-    """
-
-    def __init__(self, neta, epsilon) -> None:
-        """ Initialize the orientation with the given rotation matrix
-
-        Parameters
-        ---
-        neta --- float --- the scaler part
-        epsilon --- np.array()(float) --- the vector part
-        """
-        self.neta = neta
-        self.epsilon = epsilon
-    
-    def __mul__(self, other) -> "Quaternion":
-        """Overriding multiplication for quaternions"""
-        self.neta = self.neta*other.neta - self.epsilon.T@other.epsilon
-        self.epsilon = self.neta*other.epsilon + other.neta*self.epsilon + np.cross(self.epsilon, other.epsilon)
-        return self
-    
-    def inv(self) -> "Quaternion":
-        """Calculates inverse of current orientation"""
-        return Quaternion(self.neta, -self.epsilon)
-    
-    def get_rotation_matrix(self) -> "np.ndarray()(float)":
-        """Gets the rotation matrix form of the current configuration"""
-        return rot_quaternion(self.neta, self.epsilon)
-        
 ##--------------- Functions --------------##
 
 def rot_elementary(rotations, current=True, symbolic=False) -> "np.ndarray(float)":
