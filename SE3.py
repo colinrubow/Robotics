@@ -1,10 +1,10 @@
 import numpy as np
-from SO3 import SO3 as SO3
+import SO3
 
 class SE3():
     """A class for representing the pose of a frame
     
-    Members:
+    Members
     ---
     pose --- np.array()(float) --- 4 by 4 matrix of the transformation matrix
     """
@@ -46,8 +46,29 @@ class SE3():
         """
         return self.pose[:3, 3:]
 
+    def rotate_elem(self, theta, axis) -> "SE3":
+        """Rotates the transformation theta radians about axis
+        
+        Parameters
+        ---
+        theta --- float --- the angle to rotate about axis
+        axis --- char --- the axis to rotate about
+        """
+        self.pose = (SE3(transformation=None, orientation=SO3.rot_elementary([(axis, theta)]), p=np.zeros((3, 1))) @ self).pose
+        return self
+
+    def translate(self, p) -> "SE3":
+        """Translates self.pose
+        
+        Parameters
+        ---
+        p --- np.array()(float) --- the vector of the change of origin
+        """
+        self.pose = (SE3(transformation=None, orientation=np.eye(3), p=p) @ self).pose
+        return self
+
     def inv(self):
-        """Returns the inverse of the transformation, updates the transformation if update is True"""
+        """Returns the inverse of the transformation"""
         inv_rot = self.get_rot().T
         return SE3(transformation=None, orientation=inv_rot, p=-inv_rot@self.get_trans())
         

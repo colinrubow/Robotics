@@ -30,7 +30,7 @@ class SO3():
             return SO3(self.orientation @ other.orientation)
         return self.orientation @ other
     
-    def rot_elementary(self, rotations, current=True, update=True) -> "np.ndarray(float)":
+    def rot_elementary(self, rotations, current=True) -> "SO3":
         """Rotates the frame about the current axis if current=True else fixed given a list of rotations. Does not
             rotate the frame if update=False.
         
@@ -40,16 +40,13 @@ class SO3():
             reads as the first rotation to perform if about the current frame. The first value in the
             tuple is the axis to rotate about and the second is the angle in radians to rotate over.
         current --- boolean --- whether to rotate about the current or fixed frame --- default: True
-        update --- boolean --- whether to rotate the frame or not --- default: True
 
         Returns:
         ---
         the orientation of the frame after the rotations are applied
         """
-        transformation = rot_elementary(rotations, current=current) @ self.orientation
-        if update:
-            self.orientation = transformation
-        return transformation
+        self.orientation = rot_elementary(rotations, current=current) @ self.orientation
+        return self
     
     def euler(self, angles="zyx") -> "tuple()(float)":
         """calculates the euler angles of the current orientation
@@ -64,7 +61,7 @@ class SO3():
         """
         return euler(self.orientation, angles)
     
-    def rot_euler(self, rotations, angles='zyx') -> "np.ndarray()(float)":
+    def rot_euler(self, rotations, angles='zyx') -> "SO3":
         """Aligns the frame to an euler rotation
         
         Parameters
@@ -79,9 +76,9 @@ class SO3():
         """
 
         self.orientation = rot_euler(rotations, angles)
-        return self.orientation
+        return self
     
-    def rot_angle_axis(self, r, theta) -> "np.ndarray()(float)":
+    def rot_angle_axis(self, r, theta) -> "SO3":
         """ Aligns the frame to an angle axis rotation
         
         Parameters
@@ -94,7 +91,7 @@ class SO3():
         The orientation of the frame
         """
         self.orientation = rot_angle_axis(r, theta)
-        return self.orientation
+        return self
 
     def angle_axis(self) -> "tuple()(float)":
         """calculates the angle axis representation of the current orientation
@@ -105,7 +102,7 @@ class SO3():
         """
         return angle_axis(self.orientation)
     
-    def rot_quaternion(self, neta, epsilon) -> "np.ndarray()(float)":
+    def rot_quaternion(self, neta, epsilon) -> "SO3":
         """ Aligns the frame to the given quaternion representation
         
         Parameters
@@ -118,7 +115,7 @@ class SO3():
         The orientation of the frame
         """
         self.orientation = rot_quaternion(neta, epsilon)
-        return self.orientation
+        return self
     
     def quaternion(self) -> "tuple()(float)":
         """Calculates the quaternion representation of the current orientation
