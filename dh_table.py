@@ -78,4 +78,4 @@ class DH_Table():
                                 [sp.zeros(1, 3), sp.Matrix([1])]
                             ])
         
-        return trans
+        return sp.simplify(trans)
